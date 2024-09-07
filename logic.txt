@@ -1,0 +1,125 @@
+First thing is to pass all the mandatory checks.
+
+
+-- COMMAND LINE ARGUMENTS --
+
+The program will take either 1 or 2 arguments from the command line but not less than 1 
+and not more than 2.
+
+If the number of arguments is less than 2 (the first argument is the program name itself) or 
+more than 3, then we will print out an error indicating a wrong number of 
+arguments. In addition we will provide an instruction on how the the program should be invoked 
+from the command line.
+
+First argument is the number of pilots participating.
+The number of pilots participating must be more than 2. An error with explanation will be provided.
+If the number of pilots is not greater than 2, it wouldn't be a race.
+
+If the number of pilots is greater than 10 then we will also return from the command 
+and indicate the cause of error to the user. 
+We only have 10 pilots' name provided in our text file pilots.dat, thus the condition.
+
+Number of laps can range from 5-15. Checked with an if-statement.
+
+-----------------------------------------------------------------------------------------------------------------
+
+--- DATA FILE & VALIDATING THE NUMBER OF PARTICIPANTS ---
+
+First n pilots will be chosen to participate in the race, based on the order that they are given in
+the input. That means that the order of pilots will ALWAYS remain fixed. 
+n is the number of pilots participating in the race which is determined by the user input.
+
+We must validate that we have enough pilots given in the data file (pilots.dat).
+That means that I have to check that I actually have enough pilots in the data file itself.
+
+What I mean by that is that it doesn't matter whether I myself already know how many pilots there
+are in the data file by reading it physically. 
+I need to run the data file through a function to verify that we the number of pilots 
+in the data file.
+
+We will declare a separate function for this.
+The function will be of type integer, thus returning an integer value which indicates the 
+number of drivers' that are in the text file (pilots.dat).
+
+verify_data(int fd):
+    This function will take the file descriptor as an argument. 
+    We will start reading the file and we will do it with a while loop. 
+    We will declare an integer i which indicates the current character being read.
+    We will also declare an integer called driver_counter, which keeps count of the drivers
+    and gets incremented each time we have verified the presence of a driver in the data file.
+
+    while i doesn't equal end-of-file (EOF),
+        If we encounter a null terminator (\0)
+            Increment driver_counter 
+        Otherwise increment i (read the file)    
+    
+    If we encounter EOF, we will simply return drive_counter 
+
+    (We could also add a condition checking for the null terminator, but it has not been
+    specified that the drivers' name in the data file is an array of characters so we are 
+    treating each name as a separate array of characters with its own null terminator.)
+
+    
+If the returned value matches the number of drivers of the user's input, we will 
+continue onwards with our program.
+Otherwise we will return and the program will be terminated indicating an error, which will be 
+printed out to the user.
+
+-----------------------------------------------------------------------------------------------------------------
+
+-- PILOT STRUCTS -- 
+
+I am going to create a new struct for each pilot. 
+The struct will contain: 
+    - Name of the pilot (type char*)
+    - Individual lap times (array of integers of the user's given length)
+    - Sum of the lap times (type integer)
+    - Has the driver DNF-d (type integer - 0 if hasn't DNF-d, 1 if has DNF-d)
+
+I will declare the struct of the pilot beforehand. 
+After we have verified that we have the adequate number of pilots in the data file, I will also declare an array 
+that will amount to the size of = number of pilots * sizeof(pilot_struct)
+
+-----------------------------------------------------------------------------------------------------------------
+
+-- LAP TIMES --
+
+After the array of structs has been generated, I will loop through the array that contains the structs. 
+Separate function generate_laptimes(struct *pilot) will be used for this. 
+
+The loop will be initialized with i = 0 and we will run the loop until it is smaller than the number of pilots
+participating in the race. 
+
+We will loop through the individual lap times of each driver.
+There is said that each pilot has a 3% probability that they have to abondon the race during any lap. 
+3% probability is FIXED and will not change, thus before the beginning of each lap, we need to generate 
+a random value between a fixed range of numbers. 
+
+1 driver ALWAYS has a 3% probabilty to abandon the race, so there must be about
+100 / 0.03 = 3333 different values that we need to generate. 
+
+Thus, we need to generate a value between 0 and 3331.
+Because we include 0 and 3331 as the values that will be generated, 3331+2 values can be generated.
+
+If the generated random value matches ANY of the drivers' indexes, that driver will be DNF-d.
+
+As we mentioned beforehand, we have a integer variable in the pilot's struct that indicates whether a 
+pilot has DNF-d or not. 
+If the generated random value matches the pilots' index in the array, the variable will be set to 1.
+
+
+-----------------------------------------------------------------------------------------------------------------
+
+-- DNF --
+
+Before we generate a lap time for the driver's current lap, we will check whether the integer value of DNF is 0 
+or 1. 
+If it's 1, we will set the current lap's time equal to 0 and will continue to do so for the other laps. 
+We will also set the sum of the lap times equal to 'DNF'. (We need to type cast it to a char in that case too).
+    Else we will generate a random lap time for the lap time variable and increment the sum of lap times 
+    by that time. 
+
+
+
+
+
