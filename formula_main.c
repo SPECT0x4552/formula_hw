@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 int verify_data(FILE *fd, int drivers_num);
 FILE* open_file(char file_name[], char *file_mode);
@@ -7,6 +8,7 @@ FILE* open_file(char file_name[], char *file_mode);
 
 int main(int argc, char* argv[]) {
 
+    srand(time(0));
     char *e = "[-]"; // Indicates error
     char *i = "[*]"; // Indicates additional information
 
@@ -63,12 +65,12 @@ int main(int argc, char* argv[]) {
 
     driver drivers[10];
    
-
+    int step = 1;
+    int generate_range = 3333 / number_of_drivers;
 
     // Populate the structs
     do {
         fscanf(fptr, " %[^' ']s", drivers[driver_index].name);
-        drivers[driver_index].index = driver_index+1;
         drivers[driver_index].has_dnf = 0;
         drivers[driver_index].race_result = 0;
         driver_index++;
@@ -81,9 +83,10 @@ int main(int argc, char* argv[]) {
 
     // Loop where the race begins                    
     while(lap_counter < number_of_laps) {
-        int generate_dnf = rand() % 3333;
+        int generate_dnf = rand() % 3333+1;
         for(int i = 0; i < number_of_drivers; i++) {
-            if(drivers[i].index == generate_dnf) {
+            drivers[i].index = rand() % 100+1;
+            if(drivers[i].index <= 3) {
                 if(drivers[i].has_dnf != 1) {
                     drivers[i].has_dnf = 1;
                     drivers[i].dnf_lap = lap_counter;
@@ -108,7 +111,7 @@ int main(int argc, char* argv[]) {
         printf("  \t");
         for(int j = 0; j < number_of_laps; j++) {
             if(drivers[i].has_dnf == 1 && j >= drivers[i].dnf_lap) {
-                printf("%c ", 45);
+                printf(" %4c ", 45);
             } else {
                 printf(" %4d ", drivers[i].lap_times[j]);
             }
@@ -154,6 +157,7 @@ FILE* open_file(char file_name[], char *file_mode) {
 
     return fptr;
 }
+
 
 
 
