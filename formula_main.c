@@ -3,9 +3,7 @@
 
 int verify_data(FILE *fd, int drivers_num);
 FILE* open_file(char file_name[], char *file_mode);
-void read_names(char destination[], char *f_mode, int d_num);
-
-
+void read_names(char destination[], FILE* f_pointer, int d_num);
 
 int main(int argc, char* argv[]) {
 
@@ -105,9 +103,13 @@ FILE* open_file(char file_name[], char *file_mode) {
 
 void read_names(char destination[], FILE* file_pointer, int d_num) {
     char c;
-    while(fscanf()) {
+    int i = 0;
 
-    }
+    do {
+        fscanf("%49[^\n]%*c", &driver_name);
+        destination[i] = driver_name;
+        i++;
+    } while(!feof(file_pointer) && i < d_num);
 }
 
 
