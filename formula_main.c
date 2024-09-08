@@ -3,8 +3,6 @@
 
 int verify_data(FILE *fd, int drivers_num);
 FILE* open_file(char file_name[], char *file_mode);
-void read_names(char destination[], char *f_mode, int d_num);
-
 
 
 int main(int argc, char* argv[]) {
@@ -21,7 +19,9 @@ int main(int argc, char* argv[]) {
     int received_drivers;
     int number_of_drivers = atoi(argv[1]);
     char data_name[] = "pilots.dat";
-    char names_of_drivers[320];
+    int driver_index = 0;
+    int lap_counter = 0;
+
 
 
 
@@ -32,6 +32,7 @@ int main(int argc, char* argv[]) {
 
     printf("Number of laps: ");
     scanf("%d", &number_of_laps);
+    printf("\n");
     
     if(number_of_laps < 5 || number_of_laps > 15) {
         printf("%s Invalid number of laps!\n",e);
@@ -46,28 +47,84 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    read_names(names_of_drivers, fptr, number_of_drivers);
-    
-
+    fptr = open_file(data_name, "r");
 
     // Return a pointer to the allocated buffer for the structs
     typedef struct single_driver {
         int index;
         char name[32];
-        int number_of_laps;
-        int lap_times;
+        int lap_times[15];
+        int dnf_lap;
         int has_dnf;
+        int race_result;
 
     } driver, *p_driver;
 
-    p_driver* drivers_structs_array;
-    drivers_structs_array = (p_driver *)malloc(sizeof(driver) * number_of_drivers);
 
-    
+    driver drivers[10];
+   
 
 
-    
-    printf("Done\n");
+    // Populate the structs
+    do {
+        fscanf(fptr, " %[^' ']s", drivers[driver_index].name);
+        drivers[driver_index].index = driver_index+1;
+        drivers[driver_index].has_dnf = 0;
+        drivers[driver_index].race_result = 0;
+        driver_index++;
+
+    } while(!feof(fptr) && driver_index < number_of_drivers);
+
+    fclose(fptr);
+
+
+
+    // Loop where the race begins                    
+    while(lap_counter < number_of_laps) {
+        int generate_dnf = rand() % 3333;
+        for(int i = 0; i < number_of_drivers; i++) {
+            if(drivers[i].index == generate_dnf) {
+                if(drivers[i].has_dnf != 1) {
+                    drivers[i].has_dnf = 1;
+                    drivers[i].dnf_lap = lap_counter;
+                    drivers[i].race_result = 0;
+                }
+                drivers[i].lap_times[lap_counter] = 45;
+            } else {
+                drivers[i].lap_times[lap_counter] = rand() % (125 - 70 + 1) + 70;  
+                drivers[i].race_result += drivers[i].lap_times[lap_counter]; 
+            }
+
+            
+            
+        }
+        generate_dnf = 0;
+        lap_counter++;
+    }
+
+    // Loop to print out the results of the race
+    for(int i = 0; i < number_of_drivers; i++) {
+        printf("   %15s", drivers[i].name);
+        printf("  \t");
+        for(int j = 0; j < number_of_laps; j++) {
+            if(drivers[i].has_dnf == 1 && j >= drivers[i].dnf_lap) {
+                printf("%c ", 45);
+            } else {
+                printf(" %4d ", drivers[i].lap_times[j]);
+            }
+        }
+
+        printf("|   ");        
+        if(drivers[i].has_dnf == 1) {
+            printf("DNF\n");
+        } else { 
+            printf("%ds", drivers[i].race_result);
+            printf("\n");
+        }
+        
+    }
+    printf("\n");
+
    
     return 0;
 }
@@ -82,15 +139,10 @@ int verify_data(FILE *file_descriptor, int drivers_num) {
             drivers_count++;
         }
     } 
+
+    fclose(file_descriptor);
     return drivers_count;
 }
-
-
-
-int generate_laptime(int lap_number) {
-    // Run this before each new lap
-}
-
 
 
 FILE* open_file(char file_name[], char *file_mode) {
@@ -101,12 +153,6 @@ FILE* open_file(char file_name[], char *file_mode) {
     }
 
     return fptr;
-}
-
-void read_names(char destination[], FILE* file_pointer, int d_num) {
-    char c;
-    while(fscanf()) {
-    }
 }
 
 
