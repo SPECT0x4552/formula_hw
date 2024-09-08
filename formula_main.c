@@ -106,7 +106,6 @@ FILE* open_file(char file_name[], char *file_mode) {
 void read_names(char destination[], FILE* file_pointer, int d_num) {
     char c;
     while(fscanf()) {
-
     }
 }
 
