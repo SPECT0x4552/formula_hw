@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
 
     driver drivers_arr[10];
 
-    if(!argv[1] || basic_checks(argc, atoi(argv[1])))  {
+    if(!argv[1] || (basic_checks(argc, atoi(argv[1])) != 0))  {
             printf("%s Usage: ./formula <Number of pilots> <(Optional) Output file>\n", e);
             return 1;   
     }
@@ -41,7 +41,8 @@ int main(int argc, char* argv[]) {
     number_of_drivers = atoi(argv[1]);
     
     printf("Number of laps: ");
-    if((scanf("%d", &number_of_laps)) == 1 && (number_of_laps > 15 && number_of_laps < 5)) {
+    int read = scanf("%d", &number_of_laps);
+    if(number_of_laps < 5 || number_of_laps > 15) {
         printf("%s Invalid number of laps!\n",e);
         printf("%s Enter a number between 5-15\n", i);
         return 1;
@@ -84,7 +85,7 @@ int main(int argc, char* argv[]) {
     // Generate laptimes for each driver
     generate_laptime(laps_array, number_of_drivers, number_of_laps, dnf_status, dnf_laps);
 
-    // Generate the output
+    // Generate the output for the race
     printf("\n");
     int sum;
     for(int j = 0; j < number_of_drivers; j++) {
@@ -123,9 +124,6 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
-
-
-
 int verify_data(FILE *file_descriptor, int drivers_num) {
     char c;
     int drivers_count = 0;
@@ -140,7 +138,6 @@ int verify_data(FILE *file_descriptor, int drivers_num) {
 }
 
 
-
 int basic_checks(int arg_count,int total_drivers) {
 
     if(arg_count <= 1 || arg_count > 3) {
@@ -148,15 +145,13 @@ int basic_checks(int arg_count,int total_drivers) {
     }
 
     if(total_drivers < 2 || total_drivers > 10) {
-        printf("A minimum of 2 drivers is required for the race to begin.\n");
+        printf("A minimum of 2 drivers and a maximum of 10 drivers is required for the race results.\n");
         return 1;
     }
 
     return 0;
 
 }
-
-
 
 void populate_names(char **destination_arr, int num_of_drivers) {
     int index = 0;
@@ -175,6 +170,7 @@ void populate_names(char **destination_arr, int num_of_drivers) {
 
     fclose(fptr);
 }
+
 
 void generate_laptime(int **lap_times, int total_drivers, int total_laps, int *dnf_status, int *dnf_lap) {
     int index;
