@@ -19,7 +19,7 @@ int main(int argc, char* argv[]) {
     int number_of_laps;
     int number_of_drivers;
     int received_drivers = 0;
-    int outputfile = 0;
+    int maximum_input = 30;
     FILE *fptr;
 
     typedef struct single_driver {
@@ -36,9 +36,16 @@ int main(int argc, char* argv[]) {
 
     if(!argv[1] || (basic_checks(argc, atoi(argv[1])) != 0))  {
             printf("%s Usage: ./formula <Number of pilots> <(Optional) Output file>\n", e);
-            return 1;   
+            exit(1); 
     }
-    
+
+    if(argv[2]) {
+        if(strlen(argv[2]) > maximum_input) {
+            printf("%s Output file name is limited to a maximum of %d characters.\n", e, maximum_input);
+            printf("Exiting the program...\n");
+            exit(1);
+        }
+    }
     
     number_of_drivers = atoi(argv[1]);
     
@@ -52,14 +59,14 @@ int main(int argc, char* argv[]) {
     
     fptr = fopen("pilots.dat", "r");
     if(fptr == NULL) {
-        printf("Couldn't retrieve a valid file descriptor.\n");
+        printf("%e Couldn't retrieve a valid file descriptor.\n", e);
         return 1;
     }
 
     if(number_of_drivers != (received_drivers = verify_data(fptr, number_of_drivers))) {
-        printf("%s Error reading the data file\n", e);
+        printf("%s Not enough drivers - could not verify the integrity of the %s file's data.\n", e, "pilots.dat");
         return 1;
-    }
+    } 
    fclose(fptr);
 
     char **names_array = malloc(number_of_drivers * sizeof(char *));
@@ -81,12 +88,11 @@ int main(int argc, char* argv[]) {
         
     }
 
-    //Cleanup
-
     // Generate laptimes for each driver
     generate_laptime(laps_array, number_of_drivers, number_of_laps, dnf_status, dnf_laps);
 
     if(argv[2] && sizeof(argv[2]) > 1) {
+        
         char *filename = argv[2];
         print_to_file(filename, names_array,laps_array, number_of_drivers, number_of_laps, dnf_status, dnf_laps);
     }
@@ -94,9 +100,6 @@ int main(int argc, char* argv[]) {
     // Generate the output for the race
     printf("\n");
     int sum;
-    if(argv[2]) {
-        outputfile = 1;
-    }
     for(int j = 0; j < number_of_drivers; j++) {
         free(names_array[j]);
         sum = 0;
@@ -123,9 +126,7 @@ int main(int argc, char* argv[]) {
         }
         
         printf("\n");
-        if(outputfile) {
-            fprintf(fptr, "\n");
-        }
+        
     }
 
     fclose(fptr);
@@ -135,6 +136,8 @@ int main(int argc, char* argv[]) {
     free(laps_array);
     free(dnf_status);
     free(dnf_laps);
+    printf("Results stored in %s file in CSV format.\n", argv[2]);
+    printf("For other programs to read the file as CSV, rename the file extension to .csv (e.g. if your output file was results.txt).\n");
 
     return 0;
 }
@@ -218,12 +221,14 @@ void print_to_file(char *filename, char **dnames, int **lap_times, int total_dri
         exit(1);  
  }
 
-    // Write the header and column names onto the file
+    // Write the header names
     fprintf(fptr, "DRIVER NAME,");
     while(counter_columns < total_laps) {
-        fprintf(fptr, "LAP-%d,", counter_columns+1);
+        // Write the header names for laps
+        fprintf(fptr, "LAP %d,", counter_columns+1);
         counter_columns++;
     }
+    // Write the header name for result
     fprintf(fptr, "RESULT\n");
 
     for(int i = 0; i < total_drivers; i++) {
@@ -241,7 +246,7 @@ void print_to_file(char *filename, char **dnames, int **lap_times, int total_dri
         if(dnf_status[i]) {
             fprintf(fptr,"DNF\n");
         } else {
-            fprintf(fptr, "%d\n",laptime_sum);
+            fprintf(fptr, "%ds\n",laptime_sum);
         }
         
     }
