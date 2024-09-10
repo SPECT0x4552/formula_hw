@@ -87,7 +87,8 @@ int main(int argc, char* argv[]) {
     generate_laptime(laps_array, number_of_drivers, number_of_laps, dnf_status, dnf_laps);
 
     if(argv[2] && sizeof(argv[2]) > 1) {
-        print_to_file(argv[2], names_array,laps_array, number_of_drivers, number_of_laps, dnf_status, dnf_laps);
+        char *filename = argv[2];
+        print_to_file(filename, names_array,laps_array, number_of_drivers, number_of_laps, dnf_status, dnf_laps);
     }
 
     // Generate the output for the race
@@ -95,7 +96,6 @@ int main(int argc, char* argv[]) {
     int sum;
     if(argv[2]) {
         outputfile = 1;
-        fptr = fopen(argv[2], "w+");
     }
     for(int j = 0; j < number_of_drivers; j++) {
         free(names_array[j]);
@@ -160,7 +160,7 @@ int basic_checks(int arg_count,int total_drivers) {
     }
 
     if(total_drivers < 2 || total_drivers > 10) {
-        printf("A minimum of 2 drivers and a maximum of 10 drivers is required for the race results.\n");
+        printf("[*] A minimum of 2 drivers and a maximum of 10 drivers is required for the race results.\n");
         return 1;
     }
 
@@ -211,8 +211,8 @@ void generate_laptime(int **lap_times, int total_drivers, int total_laps, int *d
 void print_to_file(char *filename, char **dnames, int **lap_times, int total_drivers, int total_laps, int *dnf_status, int *dnf_lap) {
     FILE *fptr;
     int laptime_sum;
-    int counter_columns = 0; 
-    fptr = fopen("Results.csv", "w+");
+    int counter_columns = 0;
+    fptr = fopen(filename, "w+");
     if(fptr == NULL) {
         printf("Error writing to the file.\n");
         exit(1);  
@@ -231,9 +231,7 @@ void print_to_file(char *filename, char **dnames, int **lap_times, int total_dri
         fprintf(fptr, "%s,", dnames[i]);
         for(int j = 0; j < total_laps; j++) {
             if(dnf_status[i] == 1) {
-                if(dnf_lap[i] <= j) {
-                    fprintf(fptr, "-,");
-                }
+                    fprintf(fptr, "%c,", 45);
             } else {
                 fprintf(fptr, "%d,", lap_times[i][j]);
                 laptime_sum += lap_times[i][j];
@@ -247,6 +245,8 @@ void print_to_file(char *filename, char **dnames, int **lap_times, int total_dri
         }
         
     }
+
+    fclose(fptr);
 
 }
 
