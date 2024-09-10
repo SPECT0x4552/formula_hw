@@ -140,7 +140,7 @@ int main(int argc, char* argv[]) {
 
     if(wrote_file == 2) {  
         printf("\n%s Results stored in %s in CSV format.\n", s, argv[2]);
-        printf("%s For other programs to read the file as CSV, rename the file extension to .csv (e.g. if your output file was results.txt).\n", i);
+        printf("%s For other programs to read the file as CSV, rename (or convert) the file extension to .csv (e.g. if your output file was results.txt).\n", i);
         return 0;
     }
 
