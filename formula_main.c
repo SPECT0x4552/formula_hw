@@ -7,6 +7,7 @@ int verify_data(FILE *fd, int drivers_num);
 int basic_checks(int args, int names_number);
 void populate_names(char **destination_arr, int num_of_drivers);
 void generate_laptime(int **lap_times, int total_drivers, int total_laps, int *dnf_status, int *dnf_lap);
+void print_to_file(char *filename, char **dnames, int **lap_times, int total_pilots, int laps_num, int *has_dnf, int *dnfd_lap);
 
 
 
@@ -77,14 +78,17 @@ int main(int argc, char* argv[]) {
         dnf_status[i] = 0;
         laps_array[i] = malloc(sizeof(int) * number_of_laps);
         strcpy(drivers_arr[i].name, names_array[i]);
-        free(names_array[i]);
+        
     }
 
     //Cleanup
-    free(names_array);
 
     // Generate laptimes for each driver
     generate_laptime(laps_array, number_of_drivers, number_of_laps, dnf_status, dnf_laps);
+
+    if(argv[2] && sizeof(argv[2]) > 1) {
+        print_to_file(argv[2], names_array,laps_array, number_of_drivers, number_of_laps, dnf_status, dnf_laps);
+    }
 
     // Generate the output for the race
     printf("\n");
@@ -94,27 +98,19 @@ int main(int argc, char* argv[]) {
         fptr = fopen(argv[2], "w+");
     }
     for(int j = 0; j < number_of_drivers; j++) {
+        free(names_array[j]);
         sum = 0;
         memcpy(drivers_arr[j].lap_times, laps_array[j], 15*sizeof(int));
         free(laps_array[j]);
         drivers_arr[j].has_dnf = dnf_status[j];
         drivers_arr[j].dnf_lap = dnf_laps[j];
         printf("   %12s\t  ", drivers_arr[j].name);
-        if(outputfile) {
-            fprintf(fptr, "%s ", drivers_arr[j].name);
-        }
         for(int i = 0; i < number_of_laps; i++) {
             if(drivers_arr[j].has_dnf == 1 && drivers_arr[j].dnf_lap <= i) {
                 printf(" %3c ",'-');
-                if(outputfile) {
-                    fprintf(fptr, "-,");
-                }
                 sum = 0;
             } else {
                 printf(" %3d ", drivers_arr[j].lap_times[i]);
-                if(outputfile) {
-                    fprintf(fptr, "%d,", drivers_arr[j].lap_times[i]);
-                }
                 sum += drivers_arr[j].lap_times[i]; 
             }
             
@@ -135,6 +131,7 @@ int main(int argc, char* argv[]) {
     fclose(fptr);
     // Cleanup
     printf("\n");
+    free(names_array);
     free(laps_array);
     free(dnf_status);
     free(dnf_laps);
@@ -211,7 +208,47 @@ void generate_laptime(int **lap_times, int total_drivers, int total_laps, int *d
 }
 
 
+void print_to_file(char *filename, char **dnames, int **lap_times, int total_drivers, int total_laps, int *dnf_status, int *dnf_lap) {
+    FILE *fptr;
+    int laptime_sum;
+    int counter_columns = 0; 
+    fptr = fopen("Results.csv", "w+");
+    if(fptr == NULL) {
+        printf("Error writing to the file.\n");
+        exit(1);  
+ }
 
+    // Write the header and column names onto the file
+    fprintf(fptr, "DRIVER NAME,");
+    while(counter_columns < total_laps) {
+        fprintf(fptr, "LAP-%d,", counter_columns+1);
+        counter_columns++;
+    }
+    fprintf(fptr, "RESULT\n");
+
+    for(int i = 0; i < total_drivers; i++) {
+        laptime_sum = 0;
+        fprintf(fptr, "%s,", dnames[i]);
+        for(int j = 0; j < total_laps; j++) {
+            if(dnf_status[i] == 1) {
+                if(dnf_lap[i] <= j) {
+                    fprintf(fptr, "-,");
+                }
+            } else {
+                fprintf(fptr, "%d,", lap_times[i][j]);
+                laptime_sum += lap_times[i][j];
+            }
+            
+        }
+        if(dnf_status[i]) {
+            fprintf(fptr,"DNF\n");
+        } else {
+            fprintf(fptr, "%d\n",laptime_sum);
+        }
+        
+    }
+
+}
 
 
 
