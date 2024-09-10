@@ -102,7 +102,7 @@ int main(int argc, char* argv[]) {
     int sum;
     for(int j = 0; j < number_of_drivers; j++) {
         memcpy(drivers_arr[j].lap_times, laps_array[j], number_of_laps*sizeof(int));
-        // Free the memory of the arrays here so that won't be any need for a separate loop
+        // Free the memory of the arrays here so that there won't be any need for a separate loop to free the memory
         free(laps_array[j]);
         free(names_array[j]);
         sum = 0;
