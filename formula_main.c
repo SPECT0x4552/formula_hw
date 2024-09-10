@@ -13,6 +13,8 @@ int print_to_file(char *filename, char **dnames, int **lap_times, int total_pilo
 
 int main(int argc, char* argv[]) {
 
+    // Set the seed to be used by rand() 
+    // Value returned by time is used since it's the most simple value to get and that is usually different between rand() executions
     srand(time(0));
     char *e = "[-]"; // Indicates error
     char *i = "[*]"; // Indicates additional information
@@ -26,7 +28,7 @@ int main(int argc, char* argv[]) {
 
     typedef struct single_driver {
         int index;
-        char name[32];
+        char name[32]; 
         int lap_times[15];
         int dnf_lap;
         int has_dnf;
@@ -130,7 +132,6 @@ int main(int argc, char* argv[]) {
         
     }
 
-    
 
     // CLEANUP
     free(names_array);

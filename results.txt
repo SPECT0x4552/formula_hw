@@ -1,0 +1,6 @@
+DRIVER NAME,LAP 1,LAP 2,LAP 3,LAP 4,LAP 5,LAP 6,LAP 7,LAP 8,LAP 9,LAP 10,RESULT
+F.Alonso,-,-,-,-,-,-,-,-,-,-,DNF
+M.Webber,97,85,118,79,82,92,76,117,119,76,941s
+L.Hamilton,-,-,-,-,-,-,-,-,-,-,DNF
+S.Vettel,74,75,119,99,115,104,117,71,79,85,938s
+J.Button,-,-,-,-,-,-,-,-,-,-,DNF
