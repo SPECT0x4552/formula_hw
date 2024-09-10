@@ -18,6 +18,7 @@ int main(int argc, char* argv[]) {
     int number_of_laps;
     int number_of_drivers;
     int received_drivers = 0;
+    int outputfile = 0;
     FILE *fptr;
 
     typedef struct single_driver {
@@ -88,6 +89,10 @@ int main(int argc, char* argv[]) {
     // Generate the output for the race
     printf("\n");
     int sum;
+    if(argv[2]) {
+        outputfile = 1;
+        fptr = fopen(argv[2], "w+");
+    }
     for(int j = 0; j < number_of_drivers; j++) {
         sum = 0;
         memcpy(drivers_arr[j].lap_times, laps_array[j], 15*sizeof(int));
@@ -95,12 +100,21 @@ int main(int argc, char* argv[]) {
         drivers_arr[j].has_dnf = dnf_status[j];
         drivers_arr[j].dnf_lap = dnf_laps[j];
         printf("   %12s\t  ", drivers_arr[j].name);
+        if(outputfile) {
+            fprintf(fptr, "%s ", drivers_arr[j].name);
+        }
         for(int i = 0; i < number_of_laps; i++) {
             if(drivers_arr[j].has_dnf == 1 && drivers_arr[j].dnf_lap <= i) {
                 printf(" %3c ",'-');
+                if(outputfile) {
+                    fprintf(fptr, "-,");
+                }
                 sum = 0;
             } else {
                 printf(" %3d ", drivers_arr[j].lap_times[i]);
+                if(outputfile) {
+                    fprintf(fptr, "%d,", drivers_arr[j].lap_times[i]);
+                }
                 sum += drivers_arr[j].lap_times[i]; 
             }
             
@@ -113,8 +127,12 @@ int main(int argc, char* argv[]) {
         }
         
         printf("\n");
+        if(outputfile) {
+            fprintf(fptr, "\n");
+        }
     }
 
+    fclose(fptr);
     // Cleanup
     printf("\n");
     free(laps_array);
@@ -191,6 +209,8 @@ void generate_laptime(int **lap_times, int total_drivers, int total_laps, int *d
         }
     }
 }
+
+
 
 
 
