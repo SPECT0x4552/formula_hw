@@ -8,13 +8,14 @@ int basic_checks(int args, int names_number);
 void fd_error(FILE *fpointer);
 void populate_names(char **destination_arr, int num_of_drivers);
 void generate_laptime(int **lap_times, int total_drivers, int total_laps, int *dnf_status, int *dnf_lap);
-int print_to_file(char *filename, char **dnames, int **lap_times, int total_pilots, int laps_num, int *has_dnf, int *dnfd_lap);
+int print_to_file(char *filename, char **dnames, int **lap_times, int total_pilots, int laps_num, int *has_dnf);
 
 
 int main(int argc, char* argv[]) {
 
     // Set the seed to be used by rand() 
     // Value returned by time is used since it's the most simple value to get and that is usually different between rand() executions
+
     srand(time(0));
     char *e = "[-]"; // Indicates error
     char *i = "[*]"; // Indicates additional information
@@ -22,7 +23,7 @@ int main(int argc, char* argv[]) {
     int number_of_laps;
     int number_of_drivers;
     int received_drivers = 0;
-    int maximum_input = 30;
+    unsigned int maximum_input = 30;
     int wrote_file = 0;
     FILE *fptr;
 
@@ -34,7 +35,7 @@ int main(int argc, char* argv[]) {
         int has_dnf;
         int race_result;
 
-    } driver, *p_driver;
+    } driver;
 
     driver drivers_arr[10];
 
@@ -54,7 +55,7 @@ int main(int argc, char* argv[]) {
     number_of_drivers = atoi(argv[1]);
     
     printf("Number of laps: ");
-    int read = scanf("%d", &number_of_laps);
+    scanf("%d", &number_of_laps);
     if(number_of_laps < 5 || number_of_laps > 15) {
         printf("%s Invalid number of laps!\n",e);
         printf("%s Enter a number between 5-15\n", i);
@@ -91,12 +92,21 @@ int main(int argc, char* argv[]) {
     }
 
     // Generate laptimes for each driver
-    generate_laptime(laps_array, number_of_drivers, number_of_laps, dnf_status, dnf_laps);
+    generate_laptime(laps_array, 
+                    number_of_drivers, 
+                    number_of_laps, 
+                    dnf_status, 
+                    dnf_laps);
 
     // If there is a file print the output to the file
     if(argv[2] && sizeof(argv[2]) > 1) {  
         char *filename = argv[2];
-        wrote_file = print_to_file(filename, names_array,laps_array, number_of_drivers, number_of_laps, dnf_status, dnf_laps);
+        wrote_file = print_to_file(filename, 
+                                names_array,
+                                laps_array, 
+                                number_of_drivers, 
+                                number_of_laps, 
+                                dnf_status);
     }
 
     // Generate the output for the race
@@ -202,12 +212,11 @@ void populate_names(char **destination_arr, int num_of_drivers) {
 
 
 void generate_laptime(int **lap_times, int total_drivers, int total_laps, int *dnf_status, int *dnf_lap) {
-    int index;
     for(int i = 0; i < total_laps; i++) {
-        int random = rand() % 3333+1;
+        int random = 0; // TODO
+        random = rand() % 3333+1;
         for(int j = 0; j < total_drivers; j++) {
-            index = rand() % 100+1;
-            if(index <= 3) {
+            if(random <= 100) {
                 if(dnf_status[j] != 1) {
                     dnf_lap[j] = i;
                     dnf_status[j] = 1;
@@ -222,7 +231,7 @@ void generate_laptime(int **lap_times, int total_drivers, int total_laps, int *d
 }
 
 
-int print_to_file(char *filename, char **dnames, int **lap_times, int total_drivers, int total_laps, int *dnf_status, int *dnf_lap) {
+int print_to_file(char *filename, char **dnames, int **lap_times, int total_drivers, int total_laps, int *dnf_status) {
     FILE *fptr;
     int laptime_sum;
     int counter_columns = 0;
