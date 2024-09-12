@@ -10,10 +10,10 @@ void populate_names(char **destination_arr, int num_of_drivers);
 void generate_laptime(int **lap_times, int total_drivers, int total_laps, int *dnf_status, int *dnf_lap);
 int print_to_file(char *filename, char **dnames, int **lap_times, int total_pilots, int laps_num, int *has_dnf);
 
+int main(int argc, char *argv[])
+{
 
-int main(int argc, char* argv[]) {
-
-    // Set the seed to be used by rand() 
+    // Set the seed to be used by rand()
     // Value returned by time is used since it's the most simple value to get and that is usually different between rand() executions
 
     srand((unsigned int)time(NULL));
@@ -27,9 +27,10 @@ int main(int argc, char* argv[]) {
     int wrote_file = 0;
     FILE *fptr;
 
-    typedef struct single_driver {
+    typedef struct single_driver
+    {
         int index;
-        char name[32]; 
+        char name[32];
         int lap_times[15];
         int dnf_lap;
         int has_dnf;
@@ -39,81 +40,90 @@ int main(int argc, char* argv[]) {
 
     driver drivers_arr[10];
 
-    if(!argv[1] || (basic_checks(argc, atoi(argv[1])) != 0))  {
-            printf("%s Usage: ./formula <Number of pilots> <(Optional) Output file>\n", e);
-            exit(1); 
+    if (!argv[1] || (basic_checks(argc, atoi(argv[1])) != 0))
+    {
+        printf("%s Usage: ./formula <Number of pilots> <(Optional) Output file>\n", e);
+        exit(1);
     }
 
-    if(argv[2]) {
-        if(strlen(argv[2]) > maximum_input) {
+    if (argv[2])
+    {
+        if (strlen(argv[2]) > maximum_input)
+        {
             printf("%s Output file name is limited to a maximum of %d characters.\n", e, maximum_input);
             printf("Exiting the program...\n");
             exit(1);
         }
     }
-    
+
     number_of_drivers = atoi(argv[1]);
-    
+
     printf("Number of laps: ");
     scanf("%d", &number_of_laps);
-    if(number_of_laps < 5 || number_of_laps > 15) {
-        printf("%s Invalid number of laps!\n",e);
+    if (number_of_laps < 5 || number_of_laps > 15)
+    {
+        printf("%s Invalid number of laps!\n", e);
         printf("%s Enter a number between 5-15\n", i);
         exit(1);
     }
-    
-    fd_error(fptr= fopen("pilots.dat", "r"));
-    
+
+    fd_error(fptr = fopen("pilots.dat", "r"));
+
     // Check if there are required amount of drivers available in the given file
-    if(number_of_drivers != (received_drivers = verify_data(fptr, number_of_drivers))) {
+    if (number_of_drivers != (received_drivers = verify_data(fptr, number_of_drivers)))
+    {
         printf("%s Not enough drivers - could not verify the integrity of the %s file's data.\n", e, "pilots.dat");
         exit(1);
-    } 
-   fclose(fptr);
+    }
+    fclose(fptr);
 
     char **names_array = malloc(number_of_drivers * sizeof(char *));
     int **laps_array = malloc(number_of_drivers * sizeof(int *));
     int *dnf_status = malloc(number_of_drivers * sizeof(int));
-    int *dnf_laps = malloc(number_of_drivers*sizeof(int));
-    if(names_array == NULL || laps_array == NULL || dnf_status == NULL || dnf_laps == NULL) {
+    int *dnf_laps = malloc(number_of_drivers * sizeof(int));
+    if (names_array == NULL || laps_array == NULL || dnf_status == NULL || dnf_laps == NULL)
+    {
         printf("%s Error allocating memory.\n", e);
     }
 
     populate_names(names_array, number_of_drivers);
-    for(int i = 0; i < number_of_drivers; i++) {
+    for (int i = 0; i < number_of_drivers; i++)
+    {
         drivers_arr[i].has_dnf = 0;
         dnf_status[i] = 0;
         laps_array[i] = malloc(sizeof(int) * number_of_laps);
-        if(laps_array[i] == NULL) {
+        if (laps_array[i] == NULL)
+        {
             printf("%s Error allocating memory.\n", e);
         }
         strcpy(drivers_arr[i].name, names_array[i]);
-        
     }
 
     // Generate laptimes for each driver
-    generate_laptime(laps_array, 
-                    number_of_drivers, 
-                    number_of_laps, 
-                    dnf_status, 
-                    dnf_laps);
+    generate_laptime(laps_array,
+                     number_of_drivers,
+                     number_of_laps,
+                     dnf_status,
+                     dnf_laps);
 
     // If there is a file print the output to the file
-    if(argv[2] && sizeof(argv[2]) > 1) {  
+    if (argv[2] && sizeof(argv[2]) > 1)
+    {
         char *filename = argv[2];
-        wrote_file = print_to_file(filename, 
-                                names_array,
-                                laps_array, 
-                                number_of_drivers, 
-                                number_of_laps, 
-                                dnf_status);
+        wrote_file = print_to_file(filename,
+                                   names_array,
+                                   laps_array,
+                                   number_of_drivers,
+                                   number_of_laps,
+                                   dnf_status);
     }
 
     // Generate the output for the race
     printf("\n");
     int sum;
-    for(int j = 0; j < number_of_drivers; j++) {
-        memcpy(drivers_arr[j].lap_times, laps_array[j], number_of_laps*sizeof(int));
+    for (int j = 0; j < number_of_drivers; j++)
+    {
+        memcpy(drivers_arr[j].lap_times, laps_array[j], number_of_laps * sizeof(int));
         // Free the memory of the arrays here so that there won't be any need for a separate loop to free the memory
         free(laps_array[j]);
         free(names_array[j]);
@@ -121,27 +131,31 @@ int main(int argc, char* argv[]) {
         drivers_arr[j].has_dnf = dnf_status[j];
         drivers_arr[j].dnf_lap = dnf_laps[j];
         printf("   %12s\t  ", drivers_arr[j].name);
-        for(int i = 0; i < number_of_laps; i++) {
-            if(drivers_arr[j].has_dnf == 1 && drivers_arr[j].dnf_lap <= i) {
-                printf(" %3c ",'-');
+        for (int i = 0; i < number_of_laps; i++)
+        {
+            if (drivers_arr[j].has_dnf == 1 && drivers_arr[j].dnf_lap <= i)
+            {
+                printf(" %3c ", '-');
                 sum = 0;
-            } else {
-                printf(" %3d ", drivers_arr[j].lap_times[i]);
-                sum += drivers_arr[j].lap_times[i]; 
             }
-            
+            else
+            {
+                printf(" %3d ", drivers_arr[j].lap_times[i]);
+                sum += drivers_arr[j].lap_times[i];
+            }
         }
         printf("  | ");
-        if(sum == 0) {
+        if (sum == 0)
+        {
             printf("  %s", "DNF");
-        } else {
+        }
+        else
+        {
             printf("  %ds", sum);
         }
-        
-        printf("\n");
-        
-    }
 
+        printf("\n");
+    }
 
     // CLEANUP
     free(names_array);
@@ -149,137 +163,162 @@ int main(int argc, char* argv[]) {
     free(dnf_laps);
     free(dnf_status);
 
-    if(wrote_file == 2) {  
+    if (wrote_file == 2)
+    {
         printf("\n%s Results stored in %s in CSV format.\n", s, argv[2]);
         printf("%s For other programs to read the file as CSV, rename (or convert) the file extension to .csv (e.g. if your output file was results.txt).\n", i);
         return 0;
     }
 
-
     return 0;
 }
 
-int verify_data(FILE *file_descriptor, int drivers_num) {
+int verify_data(FILE *file_descriptor, int drivers_num)
+{
     char c;
     int drivers_count = 0;
 
-    while((c = fgetc(file_descriptor)) != EOF && drivers_count != drivers_num) {
-        if(c == '.') {
+    while ((c = fgetc(file_descriptor)) != EOF && drivers_count != drivers_num)
+    {
+        if (c == '.')
+        {
             drivers_count++;
         }
-    } 
+    }
 
     return drivers_count;
 }
 
-void fd_error(FILE *fpointer) {
-    if(fpointer == NULL) {
+void fd_error(FILE *fpointer)
+{
+    if (fpointer == NULL)
+    {
         printf("[-] Couldn't retreive a valid file handler.\n");
         printf("Exiting the program...\n");
         exit(1);
     }
 }
 
+int basic_checks(int arg_count, int total_drivers)
+{
 
-int basic_checks(int arg_count,int total_drivers) {
-
-    if(arg_count <= 1 || arg_count > 3) {
+    if (arg_count <= 1 || arg_count > 3)
+    {
         return 1;
     }
 
-    if(total_drivers < 2 || total_drivers > 10) {
+    if (total_drivers < 2 || total_drivers > 10)
+    {
         printf("[*] A minimum of 2 drivers and a maximum of 10 drivers is required for the race results.\n");
         return 1;
     }
 
     return 0;
-
 }
 
-void populate_names(char **destination_arr, int num_of_drivers) {
+void populate_names(char **destination_arr, int num_of_drivers)
+{
     int index = 0;
     FILE *fptr;
     fd_error(fptr = fopen("pilots.dat", "r"));
 
-    do {
+    do
+    {
         destination_arr[index] = malloc(32);
         fscanf(fptr, " %[^' ']s", destination_arr[index]);
         index++;
-    } while(!feof(fptr) && index < num_of_drivers);
+    } while (!feof(fptr) && index < num_of_drivers);
 
     fclose(fptr);
 }
 
-
-void generate_laptime(int **lap_times, int total_drivers, int total_laps, int *dnf_status, int *dnf_lap) {
+void generate_laptime(int **lap_times,
+                      int total_drivers,
+                      int total_laps,
+                      int *dnf_status,
+                      int *dnf_lap)
+{
     int dnf_random;
     int driver_random;
-    for(int i = 0; i < total_laps; i++) {
+    for (int i = 0; i < total_laps; i++)
+    {
         // Generate a random number and divide it by the number of drivers
         // So that we basically have a specified range for each driver
-        dnf_random = (rand() % 444*i) / total_drivers;
-        for(int j = 0; j < total_drivers; j++) {
+        dnf_random = (rand() % 444 * i) / total_drivers;
+        for (int j = 0; j < total_drivers; j++)
+        {
             // Generate a random number within the specified range for a driver
             driver_random = rand() % dnf_random + 1;
-            // If the generated number is within the 3% of that specified range 
+            // If the generated number is within the 3% of that specified range
             // this means that the driver will get disqualified
-            if(driver_random <= (dnf_random*0.03)) {
-                if(dnf_status[j] != 1) {
+            if (driver_random <= (dnf_random * 0.03))
+            {
+                if (dnf_status[j] != 1)
+                {
                     dnf_lap[j] = i;
                     dnf_status[j] = 1;
                     lap_times[j][i] = 45;
                 }
-            } else {
-                lap_times[j][i] = rand() % (125-70+1)+70;
-            } 
+            }
+            else
+            {
+                lap_times[j][i] = rand() % (125 - 70 + 1) + 70;
+            }
             driver_random = 0;
         }
     }
 }
 
+int print_to_file(char *filename,
+                  char **dnames,
+                  int **lap_times,
+                  int total_drivers,
+                  int total_laps,
+                  int *dnf_status)
+{
 
-int print_to_file(char *filename, char **dnames, int **lap_times, int total_drivers, int total_laps, int *dnf_status) {
     FILE *fptr;
     int laptime_sum;
     int counter_columns = 0;
     fd_error(fptr = fopen(filename, "w+"));
-    
+
     // Write the header names
     fprintf(fptr, "DRIVER NAME,");
-    while(counter_columns < total_laps) {
+    while (counter_columns < total_laps)
+    {
         // Write the header names for laps
-        fprintf(fptr, "LAP %d,", counter_columns+1);
+        fprintf(fptr, "LAP %d,", counter_columns + 1);
         counter_columns++;
     }
     // Write the header name for result
     fprintf(fptr, "RESULT\n");
 
-    for(int i = 0; i < total_drivers; i++) {
+    for (int i = 0; i < total_drivers; i++)
+    {
         laptime_sum = 0;
         fprintf(fptr, "%s,", dnames[i]);
-        for(int j = 0; j < total_laps; j++) {
-            if(dnf_status[i] == 1) {
-                    fprintf(fptr, "%c,", 45);
-            } else {
+        for (int j = 0; j < total_laps; j++)
+        {
+            if (dnf_status[i] == 1)
+            {
+                fprintf(fptr, "%c,", 45);
+            }
+            else
+            {
                 fprintf(fptr, "%d,", lap_times[i][j]);
                 laptime_sum += lap_times[i][j];
             }
-            
         }
-        if(dnf_status[i]) {
-            fprintf(fptr,"DNF\n");
-        } else {
-            fprintf(fptr, "%ds\n",laptime_sum);
+        if (dnf_status[i])
+        {
+            fprintf(fptr, "DNF\n");
         }
-        
+        else
+        {
+            fprintf(fptr, "%ds\n", laptime_sum);
+        }
     }
 
-    
     fclose(fptr);
     return 2;
-
 }
-
-
-
-
