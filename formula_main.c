@@ -16,7 +16,7 @@ int main(int argc, char* argv[]) {
     // Set the seed to be used by rand() 
     // Value returned by time is used since it's the most simple value to get and that is usually different between rand() executions
 
-    srand(time(0));
+    srand((unsigned int)time(NULL));
     char *e = "[-]"; // Indicates error
     char *i = "[*]"; // Indicates additional information
     char *s = "[+]"; // Indicates success
@@ -212,11 +212,12 @@ void populate_names(char **destination_arr, int num_of_drivers) {
 
 
 void generate_laptime(int **lap_times, int total_drivers, int total_laps, int *dnf_status, int *dnf_lap) {
+    int dnf_random;
     for(int i = 0; i < total_laps; i++) {
-        int random = 0; // TODO
-        random = rand() % 3333+1;
+        dnf_random = (rand() % 444*i) / total_drivers;
         for(int j = 0; j < total_drivers; j++) {
-            if(random <= 100) {
+            int driver_random = rand() % dnf_random + 1;
+            if(driver_random <= (dnf_random*0.03)) {
                 if(dnf_status[j] != 1) {
                     dnf_lap[j] = i;
                     dnf_status[j] = 1;
@@ -224,8 +225,8 @@ void generate_laptime(int **lap_times, int total_drivers, int total_laps, int *d
                 }
             } else {
                 lap_times[j][i] = rand() % (125-70+1)+70;
-            }    
-            
+            } 
+            driver_random = 0;
         }
     }
 }
