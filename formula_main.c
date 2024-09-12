@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
     {
         drivers_arr[i].has_dnf = 0;
         dnf_status[i] = 0;
-        if ((laps_array[i] = *((int**)malloc(sizeof(int) * number_of_laps))) == NULL)
+        if ((laps_array[i] = malloc(sizeof(unsigned int) * number_of_laps)) == NULL)
         {
             printf("%s Error allocating memory.\n", e);
         }
