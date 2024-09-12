@@ -200,7 +200,6 @@ void fd_error(FILE *fpointer)
 
 int basic_checks(int arg_count, int total_drivers)
 {
-
     if (arg_count <= 1 || arg_count > 3)
     {
         return 1;
