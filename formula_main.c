@@ -3,6 +3,16 @@
 #include <time.h>
 #include <string.h>
 
+#define MAX_INPUT 30
+#define MAX_DRIVERS 10
+#define MIN_DRIVERS 2
+#define MAX_LAPS 15
+#define MIN_LAPS 5
+#define MAX_LAPTIME 125
+#define MIN_LAPTIME 70
+#define DNF_LAPTIME 45
+#define WRITE_OUTPUT_SUCCESS 2
+
 int verify_data(FILE *fd, int drivers_num);
 int basic_checks(int args, int names_number);
 void fd_error(FILE *fpointer);
@@ -23,7 +33,6 @@ int main(int argc, char *argv[])
     int number_of_laps;
     int number_of_drivers;
     int received_drivers = 0;
-    unsigned int maximum_input = 30;
     int wrote_file = 0;
     FILE *fptr;
 
@@ -48,9 +57,9 @@ int main(int argc, char *argv[])
 
     if (argv[2])
     {
-        if (strlen(argv[2]) > maximum_input)
+        if (strlen(argv[2]) > MAX_INPUT)
         {
-            printf("%s Output file name is limited to a maximum of %d characters.\n", e, maximum_input);
+            printf("%s Output file name is limited to a maximum of %d characters.\n", e, MAX_INPUT);
             printf("Exiting the program...\n");
             exit(1);
         }
@@ -60,7 +69,7 @@ int main(int argc, char *argv[])
 
     printf("Number of laps: ");
     scanf("%d", &number_of_laps);
-    if (number_of_laps < 5 || number_of_laps > 15)
+    if (number_of_laps < MIN_LAPS || number_of_laps > MAX_LAPS)
     {
         printf("%s Invalid number of laps!\n", e);
         printf("%s Enter a number between 5-15\n", info);
@@ -163,7 +172,7 @@ int main(int argc, char *argv[])
     free(dnf_laps);
     free(dnf_status);
 
-    if (wrote_file == 2)
+    if (wrote_file == WRITE_OUTPUT_SUCCESS)
     {
         printf("\n%s Results stored in %s in CSV format.\n", s, argv[2]);
         printf("%s For other programs to read the file as CSV, rename (or convert) the file extension to .csv (e.g. if your output file was results.txt).\n", info);
@@ -208,7 +217,7 @@ int basic_checks(int arg_count, int total_drivers)
         return 1;
     }
 
-    if (total_drivers < 5 || total_drivers > 15)
+    if (total_drivers < MIN_DRIVERS || total_drivers > MAX_DRIVERS)
     {
         printf("[*] A minimum of 2 drivers and a maximum of 10 drivers is required for the race results.\n");
         return 1;
@@ -245,7 +254,7 @@ void generate_laptime(int **lap_times,
     {
         // Generate a random number and divide it by the number of drivers
         // So that we basically have a specified range for each driver
-        dnf_random = rand() % 3333  / total_drivers;
+        dnf_random = (rand() % 444 * (i+1))  / total_drivers;
         for (int j = 0; j < total_drivers; j++)
         {
             // Generate a random number within the specified range for a driver
@@ -263,14 +272,14 @@ void generate_laptime(int **lap_times,
             }
             else
             {
-                lap_times[j][i] = rand() % (125 - 70 + 1) + 70;
+                lap_times[j][i] = rand() % (MAX_LAPTIME - MIN_LAPTIME + 1) + MIN_LAPTIME;
             }
             driver_random = 0;
         }
+        dnf_random = 0;
     }
+   
 
-    dnf_random = 0;
-    driver_random = 0;
 }
 
 int print_to_file(char *filename,
@@ -305,7 +314,7 @@ int print_to_file(char *filename,
         {
             if (dnf_status[i] == 1)
             {
-                fprintf(fptr, "%c,", 45);
+                fprintf(fptr, "%c,", DNF_LAPTIME);
             }
             else
             {
