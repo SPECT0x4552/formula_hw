@@ -161,6 +161,7 @@ int main(int argc, char *argv[])
         else
         {
             printf("  %ds", sum);
+            sum = 0;
         }
 
         printf("\n");
@@ -331,6 +332,7 @@ int print_to_file(char *filename,
             fprintf(fptr, "%ds\n", laptime_sum);
         }
     }
+    laptime_sum = 0;
 
     fclose(fptr);
     return 2;
