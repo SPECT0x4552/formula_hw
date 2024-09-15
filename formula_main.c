@@ -18,7 +18,7 @@ int basic_checks(int args, int names_number);
 void fd_error(FILE *fpointer);
 void populate_names(char **destination_arr, int num_of_drivers);
 void generate_laptime(int **lap_times, int total_drivers, int total_laps, int *dnf_status, int *dnf_lap);
-int print_to_file(char *filename, char **dnames, int **lap_times, int total_pilots, int laps_num, int *has_dnf);
+int print_to_file(char *filename, char **dnames, int **lap_times, int total_pilots, int laps_num, int *has_dnf, int *dnf_lapnum);
 
 int main(int argc, char *argv[])
 {
@@ -93,6 +93,7 @@ int main(int argc, char *argv[])
     if (names_array == NULL || laps_array == NULL || dnf_status == NULL || dnf_laps == NULL)
     {
         printf("%s Error allocating memory.\n", e);
+        printf("%s Exiting the program...\n", e);
     }
 
     populate_names(names_array, number_of_drivers);
@@ -124,7 +125,8 @@ int main(int argc, char *argv[])
                                    laps_array,
                                    number_of_drivers,
                                    number_of_laps,
-                                   dnf_status);
+                                   dnf_status,
+                                   dnf_laps);
     }
 
     // Generate the output for the race
@@ -180,7 +182,6 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    printf("\n");
 
     return 0;
 }
@@ -206,7 +207,7 @@ void fd_error(FILE *fpointer)
     if (fpointer == NULL)
     {
         printf("[-] Couldn't retreive a valid file handler.\n");
-        printf("Exiting the program...\n");
+        printf("[*] Exiting the program...\n");
         exit(1);
     }
 }
@@ -254,7 +255,7 @@ void generate_laptime(int **lap_times,
     for (int i = 0; i < total_laps; i++)
     {
         // Generate a random number and divide it by the number of drivers
-        // So that we basically have a specified range for each driver
+        // so that we basically have a specified range for each driver
         dnf_random = (rand() % 444 * (i+1))  / total_drivers;
         for (int j = 0; j < total_drivers; j++)
         {
@@ -288,7 +289,8 @@ int print_to_file(char *filename,
                   int **lap_times,
                   int total_drivers,
                   int total_laps,
-                  int *dnf_status)
+                  int *dnf_status,
+                  int *dnf_lap)
 {
 
     FILE *fptr;
@@ -313,7 +315,7 @@ int print_to_file(char *filename,
         fprintf(fptr, "%s,", dnames[i]);
         for (int j = 0; j < total_laps; j++)
         {
-            if (dnf_status[i] == 1)
+            if (dnf_status[i] == 1 && dnf_lap[i] <= j)
             {
                 fprintf(fptr, "%c,", DNF_LAPTIME);
             }
