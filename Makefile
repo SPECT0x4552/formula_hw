@@ -1,8 +1,8 @@
-IDIR=./function_library
+IDIR=function_library
 CC=gcc
 CFLAGS=-Wall -I$(IDIR)
 
-ODIR=./obj
+ODIR=obj
 
 _DEPS = check_verify.h generate_name_laptime.h print_to_file.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
@@ -22,5 +22,5 @@ formula: $(OBJ)
 .PHONY: clean
 
 clean:
-		rm -f $(ODIR)/*.o *~ core $(INCDIR)/*~ formula
+		rm -f $(ODIR)/*.o *~ core $(INCDIR)/*~ formula *.txt
 
