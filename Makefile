@@ -22,5 +22,5 @@ formula: $(OBJ)
 .PHONY: clean
 
 clean:
-		rm -f $(ODIR)/*.o *~ core $(INCDIR)/*~ formula *.txt
+		rm -f $(ODIR)/*.o $(INCDIR)*.txt formula
 
