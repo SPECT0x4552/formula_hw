@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
         if((laps_array[i] = malloc(sizeof(int) * number_of_laps)) == NULL) {
             printf("%s Error allocating memory.\n", s);
             printf("%s Exiting the program..\n", info);
-            return 1;
+            exit(1);
         }
         strcpy(drivers_arr[i].name, names_array[i]);
     }

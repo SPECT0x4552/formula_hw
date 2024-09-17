@@ -1,6 +1,6 @@
 IDIR=./function_library
 CC=gcc
-CFLAGS=-Wall -I$(IDIR)
+CFLAGS=-Wall -Wextra -I$(IDIR)
 
 ODIR=./obj
 
@@ -22,5 +22,5 @@ formula: $(OBJ)
 .PHONY: clean
 
 clean:
-		rm -f $(ODIR)/*.o *~ core $(INCDIR)/*~ formula
+		rm -f $(ODIR)/*.o *~ core $(INCDIR)/*~ formula *.txt
 
